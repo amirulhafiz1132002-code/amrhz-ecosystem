@@ -1,0 +1,49 @@
+name: Docs & Structure Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Check Required Files
+        run: |
+          echo "Checking required documentation files..."
+
+          files=(
+            "README.md"
+            "docs/TESTING_GUIDE.md"
+            "docs/FEEDBACK_TEMPLATE.md"
+            "docs/AI_GUIDE.md"
+            "docs/ROADMAP.md"
+          )
+
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing: $file"
+              exit 1
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+
+      - name: Check Empty Files
+        run: |
+          echo "Checking for empty files..."
+
+          for file in $(find docs -type f); do
+            if [ ! -s "$file" ]; then
+              echo "⚠️ Empty file: $file"
+              exit 1
+            fi
+          done
+
+      - name: Markdown Lint
+        uses: avto-dev/markdown-lint@v1
